@@ -14,6 +14,6 @@ services:
       - key: REQUIRE_AUTH
         value: "true"
       - key: AUTH_TOKEN
-        sync: false       # set the same value as LATEX_COMPILER_TOKEN on Vercel
+        generateValue: true   # Render generates it; copy the value into LATEX_COMPILER_TOKEN on Vercel
       - key: MAX_CONCURRENT
         value: "1"

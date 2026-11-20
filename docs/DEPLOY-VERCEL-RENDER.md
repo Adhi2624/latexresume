@@ -14,7 +14,7 @@ Copy the connection string; on Vercel the normal `mongodb+srv://…/latexresume`
 
 ## 2. Render: compiler
 Create a **Web Service** from this repo using the Blueprint (`render.yaml`) or manually: runtime *Docker*, Dockerfile `./compiler/Dockerfile`, context `./compiler`, health check `/health`.
-Set `AUTH_TOKEN` to a long random value (`openssl rand -hex 32`) — the service refuses to start without it because `REQUIRE_AUTH=true`.
+With the Blueprint, Render generates `AUTH_TOKEN` for you (see the service's Environment tab); copy it into `LATEX_COMPILER_TOKEN` on Vercel. If you create the service manually, set `AUTH_TOKEN` to a long random value (`openssl rand -hex 32`). The service refuses to start without it because `REQUIRE_AUTH=true`.
 Note the service URL (e.g. `https://latexresume-compiler.onrender.com`).
 
 > Free instances sleep after ~15 minutes without traffic; the first compile afterwards takes 30–60 s (the app waits up to 60 s). Use a paid instance for always-on.
