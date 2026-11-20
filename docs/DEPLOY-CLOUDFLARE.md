@@ -44,6 +44,9 @@ The e2e tests can target it: `BASE_URL=http://localhost:8787 pnpm test`.
 
 ## Notes
 
+- `global_fetch_strictly_public` (set in `wrangler.jsonc`) makes Workers refuse `fetch()` to private addresses, which backs up the app's AI base-URL guard against SSRF.
+- Behind Cloudflare the client IP comes from `cf-connecting-ip` (not spoofable), so per-IP rate limits work without `TRUST_PROXY`.
+
 - Workers need the `nodejs_compat` flag and a compatibility date ≥ 2024-09-23 for the MongoDB driver (already set).
 - The app opens one short-lived MongoDB connection per request on Workers (sockets can't be shared across requests).
 - Atlas is a hosted service: the TCP hop from the Worker to Atlas adds latency; pick an Atlas region near your users.

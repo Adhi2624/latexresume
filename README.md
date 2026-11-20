@@ -52,6 +52,8 @@ Create an account at `/auth/signup`, pick a template, press **Compile**.
 | `NEXT_PUBLIC_REPO_URL` | – | Shows GitHub links in the UI (**build time** — set it when running `pnpm build`/`pnpm deploy`). |
 | `ALLOW_PRIVATE_AI_URLS` | – | Production only: allow loopback/private AI base URLs (blocked by default to prevent SSRF). |
 | `RATE_LIMIT_SCALE` | – | Multiplier for built-in rate limits (default `1` in production, `100` in development). |
+| `TRUST_PROXY` | – | Set `true` only behind a reverse proxy that sets `X-Forwarded-For`; otherwise per-IP limits share one bucket. |
+| `ALLOW_CUSTOM_AI_URLS` | – | `false` disables user-supplied AI base URLs entirely (recommended on shared hosts). |
 
 Compiler service (`compiler/`) variables: `PORT` (9000), `AUTH_TOKEN`, `COMPILE_TIMEOUT_MS` (30000), `MAX_CONCURRENT` (2).
 **Never expose the compiler publicly without `AUTH_TOKEN`** — it executes TeX on behalf of callers.
@@ -96,7 +98,7 @@ pnpm preview  # build + run in the local Workers runtime
   should run in an unprivileged container (the provided compose file drops capabilities and uses a read-only root).
   Don't expose it publicly without `AUTH_TOKEN`.
 - Passwords use PBKDF2-SHA256; sessions are signed `httpOnly` cookies that are revoked on logout; API tokens are stored as SHA-256 hashes.
-- Login, signup and compile are rate limited (MongoDB-backed), with one in-flight compile per user.
+- Rate limits (MongoDB-backed): login 8 failures / 10 min per IP+email and 20 / 15 min per account, signup 10 / hour per IP, compile 30 / min per user with one in-flight compile per user. Behind a reverse proxy set `TRUST_PROXY=true`.
 - The AI base URL cannot target private/loopback hosts in production.
 - Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
 

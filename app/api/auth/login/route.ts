@@ -11,6 +11,8 @@ export async function POST(req: Request) {
     const ip = clientIp(req);
     await rateLimit(`login-ip:${ip}`, 60, 600);
     await rateLimit(`login:${ip}:${body.email}`, 8, 600);
+    // IP-independent: one account can't be brute-forced from many addresses.
+    await rateLimit(`login-email:${body.email}`, 20, 900);
     const user = await withDb((db) => col.users(db).findOne({ email: body.email }));
     // Verify against a dummy hash when the user is unknown to keep timing similar.
     const valid = user

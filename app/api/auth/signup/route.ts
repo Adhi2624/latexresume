@@ -9,6 +9,7 @@ export async function POST(req: Request) {
   try {
     if (!signupAllowed()) return fail('Registration is disabled on this instance', 403);
     await rateLimit(`signup:${clientIp(req)}`, 10, 3600);
+    await rateLimit('signup:global', 200, 3600);
     const body = signupSchema.parse(await readJson(req));
     const passwordHash = await hashPassword(body.password);
     const user = await withDb(async (db) => {

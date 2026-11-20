@@ -29,11 +29,16 @@ export class BadRequest extends Error {}
 export async function readJson(req: Request): Promise<unknown> {
   const text = await req.text();
   if (!text.trim()) return {};
+  let parsed: unknown;
   try {
-    return JSON.parse(text);
+    parsed = JSON.parse(text);
   } catch {
     throw new BadRequest('Invalid JSON body');
   }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new BadRequest('JSON body must be an object');
+  }
+  return parsed;
 }
 
 export function handleError(e: unknown): Response {

@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${geist.variable} ${mono.variable} dark`}>
       <body className="font-sans">
         <SessionProvider>{children}</SessionProvider>
-        <Toaster richColors position="top-right" />
+        <Toaster richColors position="bottom-right" duration={3500} />
       </body>
     </html>
   );

@@ -156,6 +156,27 @@ test('hardening: malformed JSON, per-field errors, AI URL scheme, MCP batches', 
   assert.equal(big.status, 400);
 });
 
+test('non-object JSON bodies are rejected with 400, never 500', async () => {
+  for (const body of ['null', '[]', '"s"', '1']) {
+    const r = await fetch(`${BASE}/api/resumes/${resumeId}/compile`, { method: 'POST', headers: { cookie, 'content-type': 'application/json' }, body });
+    assert.equal(r.status, 400, `body ${body}`);
+  }
+  const m = await call('/mcp', { method: 'POST', auth: 'bearer', body: null });
+  assert.equal(m.status, 400);
+  assert.equal((await json(m)).error.code, -32600);
+});
+
+test('rate-limit spoofing: rotating X-Forwarded-For does not reset the per-account login limit', async () => {
+  if (process.env.RATE_LIMIT_SCALE !== '1') return; // limits are scaled x100 in dev; run with RATE_LIMIT_SCALE=1 to enable
+  const target = `victim-${Date.now()}@example.com`;
+  let limited = false;
+  for (let i = 0; i < 40 && !limited; i++) {
+    const r = await call('/api/auth/login', { method: 'POST', auth: 'none', body: { email: target, password: 'Wrong1234' }, headers: { 'x-forwarded-for': `9.9.9.${i}` } });
+    limited = r.status === 429;
+  }
+  assert.ok(limited, 'expected 429 after repeated failures regardless of spoofed IP');
+});
+
 test('one compile at a time per user (no compiler monopolisation)', async () => {
   const loop = '\\documentclass{article}\\begin{document}\\def\\a{\\a}\\a\\end{document}';
   // Fire several compiles in parallel; at most one may be in flight, the rest must be refused quickly.

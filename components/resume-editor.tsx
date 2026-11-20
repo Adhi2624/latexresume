@@ -207,6 +207,7 @@ export function ResumeEditor({ initial }: { initial: ResumeData }) {
 
   function goToLine(line: number) {
     editorRef.current?.revealLineInCenter(line);
+    editorRef.current?.setScrollTop(Math.max(0, (editorRef.current?.getScrollTop() ?? 0) - 40)); // keep the line clear of the banner
     editorRef.current?.setPosition({ lineNumber: line, column: 1 });
     editorRef.current?.focus();
   }
@@ -258,7 +259,7 @@ export function ResumeEditor({ initial }: { initial: ResumeData }) {
                 )}
                 {issue.detail && (
                   <details className="mt-1"><summary className="cursor-pointer font-mono text-xs opacity-80">Show TeX log</summary>
-                    <pre className="mt-1 max-h-40 overflow-auto rounded bg-black/40 p-2 font-mono text-[11px] leading-4">{issue.detail}</pre>
+                    <pre className="mt-1 max-h-28 overflow-auto rounded bg-black/40 p-2 font-mono text-[11px] leading-4">{issue.detail}</pre>
                   </details>
                 )}
               </div>

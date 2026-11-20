@@ -1,12 +1,20 @@
 import { withDb } from './db';
 
-/** Best-effort client IP (Cloudflare, then reverse proxies). */
+const onWorkers = typeof navigator !== 'undefined' && navigator.userAgent === 'Cloudflare-Workers';
+
+/**
+ * Client IP used for rate limiting.
+ * - Cloudflare Workers: `cf-connecting-ip` is set by Cloudflare itself and cannot be spoofed.
+ * - Node: forwarded headers are client-controlled unless a trusted reverse proxy sets them, so they are
+ *   only honoured when TRUST_PROXY=true. Otherwise every caller shares one bucket ("direct"), which is
+ *   safe (stricter), and the per-account limits below still apply.
+ */
 export function clientIp(req: Request): string {
-  return (
-    req.headers.get('cf-connecting-ip') ??
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    'unknown'
-  );
+  if (onWorkers) return req.headers.get('cf-connecting-ip') ?? 'unknown';
+  if (process.env.TRUST_PROXY === 'true') {
+    return req.headers.get('x-forwarded-for')?.split(',').pop()?.trim() || req.headers.get('x-real-ip') || 'direct';
+  }
+  return 'direct';
 }
 
 /** 1 in production; 100 in development so repeated local/test runs aren't throttled. Override with RATE_LIMIT_SCALE. */

@@ -113,7 +113,7 @@ export async function compileResume(userId: string, id: string, source?: string)
   await rateLimit(`compile:${userId}`, 30, 60);
   // One in-flight compile per user so a single account can't monopolise the compiler.
   const lockKey = `compile:${userId}`;
-  if (!(await acquireLock(lockKey, 45))) {
+  if (!(await acquireLock(lockKey, 75))) {
     return { ok: false as const, error: 'A compile is already running for your account. Wait for it to finish.', busy: true };
   }
   let result: Awaited<ReturnType<typeof compileLatex>>;
