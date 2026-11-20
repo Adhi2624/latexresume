@@ -14,6 +14,11 @@ const MAX_BODY = 600_000;
 const MAX_CONCURRENT = Number(process.env.MAX_CONCURRENT ?? 2);
 let running = 0;
 
+if (process.env.REQUIRE_AUTH === 'true' && !AUTH_TOKEN) {
+  console.error('REQUIRE_AUTH=true but AUTH_TOKEN is not set; refusing to start an open compiler.');
+  process.exit(1);
+}
+
 function send(res, status, body, type = 'application/json') {
   res.writeHead(status, { 'content-type': type });
   res.end(type === 'application/json' ? JSON.stringify(body) : body);
@@ -65,6 +70,7 @@ async function compile(source) {
 }
 
 http.createServer(async (req, res) => {
+  // Render health checks / uptime pings hit /health without credentials.
   try {
     if (req.method === 'GET' && req.url === '/health') return send(res, 200, { status: 'ok' });
     if (req.method !== 'POST' || req.url !== '/compile') return send(res, 404, { error: 'Not found' });

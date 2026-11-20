@@ -6,6 +6,8 @@ import { handleError } from '@/lib/http';
  * Model Context Protocol server (Streamable HTTP, stateless, JSON responses).
  * Authenticate with `Authorization: Bearer lrp_…` (create a token in Settings).
  */
+export const maxDuration = 60;
+
 const cors = {
   'access-control-allow-origin': '*',
   'access-control-allow-headers': 'authorization, content-type, mcp-protocol-version, mcp-session-id',

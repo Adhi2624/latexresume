@@ -58,7 +58,12 @@ Create an account at `/auth/signup`, pick a template, press **Compile**.
 Compiler service (`compiler/`) variables: `PORT` (9000), `AUTH_TOKEN`, `COMPILE_TIMEOUT_MS` (30000), `MAX_CONCURRENT` (2).
 **Never expose the compiler publicly without `AUTH_TOKEN`** — it executes TeX on behalf of callers.
 
-## Deploy to Cloudflare Workers + MongoDB Atlas
+## Deploy
+
+- **Vercel (app) + Render (compiler) + MongoDB Atlas:** see **[docs/DEPLOY-VERCEL-RENDER.md](docs/DEPLOY-VERCEL-RENDER.md)**.
+- **Cloudflare Workers + MongoDB Atlas:** below.
+
+### Cloudflare Workers + MongoDB Atlas
 
 See **[docs/DEPLOY-CLOUDFLARE.md](docs/DEPLOY-CLOUDFLARE.md)**. In short:
 

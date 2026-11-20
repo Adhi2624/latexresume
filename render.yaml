@@ -1,0 +1,19 @@
+# Render Blueprint: the LaTeX compiler service. The Next.js app (UI + API) is deployed to Vercel.
+# See docs/DEPLOY-VERCEL-RENDER.md
+services:
+  - type: web
+    name: latexresume-compiler
+    runtime: docker
+    dockerfilePath: ./compiler/Dockerfile
+    dockerContext: ./compiler
+    plan: free            # free instances sleep after ~15 min idle (first compile then takes ~30-60 s); use starter for always-on
+    region: oregon
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: REQUIRE_AUTH
+        value: "true"
+      - key: AUTH_TOKEN
+        sync: false       # set the same value as LATEX_COMPILER_TOKEN on Vercel
+      - key: MAX_CONCURRENT
+        value: "1"

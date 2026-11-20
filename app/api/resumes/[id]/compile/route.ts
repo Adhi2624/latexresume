@@ -2,6 +2,9 @@ import { authed, fail, readJson } from '@/lib/http';
 import { compileResume } from '@/lib/resumes';
 import { guard } from '@/lib/http-resumes';
 
+/** Compiles can wait for a cold-started compiler service (e.g. Render free tier). */
+export const maxDuration = 60;
+
 /** Returns the PDF bytes on success; JSON `{success:false,error,log}` (HTTP 422) on a TeX error. */
 export const POST = authed((req, s, p) =>
   guard(async () => {
