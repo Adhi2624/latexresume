@@ -1,0 +1,21 @@
+node_modules/
+.next/
+.open-next/
+.wrangler/
+out/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+.pnpm-debug.log*
+.env
+.env.*
+!.env.example
+.dev.vars
+cloudflare-env.d.ts
+.DS_Store
+
+# Local MCP config (design tooling)
+.mcp.json
+.claude/settings.local.json

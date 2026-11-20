@@ -1,0 +1,42 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      mongo:
+        image: mongo:7.0
+        ports: ["27017:27017"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm build
+        env:
+          MONGODB_URI: mongodb://localhost:27017/ci
+          JWT_SECRET: ci-secret-ci-secret
+          ENCRYPTION_SECRET: ci-secret-ci-secret
+      - name: Build the Cloudflare Worker bundle
+        run: pnpm exec opennextjs-cloudflare build
+      - name: Build compiler image
+        run: docker build -t latexresume-compiler compiler/
+      - name: End-to-end tests
+        run: |
+          docker run -d -p 9000:9000 latexresume-compiler
+          pnpm start &
+          for i in $(seq 1 60); do curl -sf localhost:3000/api/health && curl -sf localhost:9000/health && break; sleep 2; done
+          pnpm test
+        env:
+          MONGODB_URI: mongodb://localhost:27017/ci
+          JWT_SECRET: ci-secret-ci-secret
+          ENCRYPTION_SECRET: ci-secret-ci-secret
+          LATEX_COMPILER_URL: http://localhost:9000

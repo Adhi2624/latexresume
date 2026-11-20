@@ -1,0 +1,32 @@
+# Local development services.
+#   docker compose up -d            # MongoDB Community + LaTeX compiler
+#   docker compose up -d compiler   # compiler only (if you already run MongoDB)
+services:
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "127.0.0.1:${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  compiler:
+    build: ./compiler
+    ports:
+      - "127.0.0.1:${COMPILER_PORT:-9000}:9000"
+    environment:
+      AUTH_TOKEN: ${LATEX_COMPILER_TOKEN:-}
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 1g
+    pids_limit: 256
+
+volumes:
+  mongo_data:
